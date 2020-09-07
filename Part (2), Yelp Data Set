@@ -1,0 +1,146 @@
+Part 2: Inferences and Analysis
+
+1. Pick one city and category of your choice and group the businesses in that city or category by their overall star rating. Compare the businesses with 2-3 stars to the businesses with 4-5 stars and answer the following questions. Include your code.
+
+-Code:
+	--CodeStart
+	Select b.city
+	,c.category
+	,b.stars
+	from business b 
+	LEFT JOIN category c ON b.id=c.business_id
+	WHERE 
+	c.category IS NOT NULL --I nulled the characters because it was difficult to find categories with all the empty records
+	AND B.city='Chandler' --Chandler was the only city in which I was able to find matching categories.
+	AND stars BETWEEN 2.0 AND 5.0 --This is for the rating as asked in the course
+	GROUP BY stars;
+	--CodeEnd
+
+	--Over here Chandler has 2 bars which has "3" and "4" rating.
+	
+i. Do the two groups you chose to analyze have a different distribution of hours?
+
+	Ans: Yes, the bar which has "3" rating operates from 9:00 to 2:30 on a Saturday. Whereas, the bar which has "4" rating operates from 11:00 to 2:00 on a Saturday. 
+
+
+ii. Do the two groups you chose to analyze have a different number of reviews?
+
+	Ans: Yes, the bar which has "3" rating has "141" reviews whereas the bar which has "4" rating has "75" reviews.
+         
+         
+iii. Are you able to infer anything from the location data provided between these two groups? Explain.
+	
+	Ans: Yes, so I pulled the neighboorhood information as well, it showed me empty records. But I pulled the address from the database and I found out that the bar with "3" rating and address "58 S San Marcos Pl" is actually called "Murphy's Law Irish Pub". It is situated in downtown of Chandler. Whereas, the bar with "4" rating and address "825 N 54th St" is not in downtown rather its in a plaza.
+
+	Hence, for me the reason bar "3" has low rating as compared to the bar "4" is because it had more reviews since its in downtown area and in a touristy place. Where as the bar with "4" rating is in a plaza with less reviews and hence due to that its average increased.
+
+SQL code used for analysis:
+
+	-Final Code
+
+	--StartofCode
+
+	Select b.city
+	,c.category
+	,b.stars
+	,h.hours
+	,b.review_count
+	,b.neighborhood
+	,b.address
+	from business b 
+	LEFT JOIN category c ON b.id=c.business_id --(applied left join to join the id of business table and category table to find out the categories)--
+	LEFT JOIN hours h ON b.id=h.business_id --(applied left join to join the id of business table and hours table to find out the working hours)--
+	WHERE 
+	c.category IS NOT NULL
+	AND B.city='Chandler' 
+	AND stars BETWEEN 2.0 AND 5.0
+	GROUP BY stars;
+		
+		
+2. Group business based on the ones that are open and the ones that are closed. What differences can you find between the ones that are still open and the ones that are closed? List at least two differences and the SQL code you used to arrive at your answer.
+		
+i. Difference 1:
+   Ans: I grouped business together of the city "Toronto" and found out that these two "restaurants" named "99 cent sushi" and "Edulis" have difference of rating. Since, "99 cent sushi" is closed on a saturday its rating is "2.0" where as "Edulis" is open on Saturday has a rating of "4.0".
+         
+ii. Difference 2:
+	Ans: The second differnece which I see is that "99 cent sushi" has received less "review_count" as compared to "Edulus" i.e. it has received only "5" reviews. Whereas, "Edulis" has a whopping 89 reviews.
+         
+         
+         
+SQL code used for analysis:
+
+-Code:
+	
+	--StartofCode
+	Select b.name
+	,b.city
+	,c.category
+	,b.stars
+	,h.hours
+	,b.review_count
+	,CASE
+	WHEN b.is_open = 1 THEN "OPEN"
+	ELSE 'CLOSE'
+	END 'Open/Close'
+	from business b 
+	LEFT JOIN category c ON b.id=c.business_id
+	LEFT JOIN hours h ON b.id=h.business_id
+	WHERE hours IS NOT NULL
+	AND category IS NOT NULL
+	AND b.city = 'Toronto'
+	GROUP BY b.is_open;
+	--EndofCode
+
+
+	
+	
+3. For this last part of your analysis, you are going to choose the type of analysis you want to conduct on the Yelp dataset and are going to prepare the data for analysis.
+
+Ideas for analysis include: Parsing out keywords and business attributes for sentiment analysis, clustering businesses to find commonalities or anomalies between them, predicting the overall star rating for a business, predicting the number of fans a user will have, and so on. These are just a few examples to get you started, so feel free to be creative and come up with your own problem you want to solve. Provide answers, in-line, to all of the following:
+	
+i. Indicate the type of analysis you chose to do:
+	Ans: Since I am a Muslim and eat "Halal" food so I wanted to find how many restaurants does Yelp can help me find which are "Halal" friendly. I moved to New York so I thought to explore some new halal places around me or just generally I just wanted to check. It was maybe curiosity but I was very excited to do this.
+         
+         
+ii. Write 1-2 brief paragraphs on the type of data you will need for your analysis and why you chose that data
+	Ans: So since I am specifically looking for "Halal" restaurants so in order to find this I would have to first search from the "Category" table that how many halal places are there.
+
+	So I started writing of my data from the "category" table, I then also wanted to knew the place's "city, state, stars, names, review count etc" so I joined in the "business" table with my category table by applying the "left join" on their "id" i.e the id of category table and the id of the business table.
+
+	Now, I was also curious about the user reviews on the halal places so I also looped in the "review" table so that I could pull out all of the "text" column of that specific halal restuarants. Hence, to do this; this was the only way.                         
+                  
+iii. Output of your finished dataset:
+
++-------------------------+------+-------+-------+----------+--------------+------+
+|                    name | city | state | stars | category | review_count | text |
++-------------------------+------+-------+-------+----------+--------------+------+
+|                    None | None |  None |  None | Halal    |         None | None |
+|                    None | None |  None |  None | Halal    |         None | None |
+|                    None | None |  None |  None | Halal    |         None | None |
+| Green Corner Restaurant | Mesa |    AZ |   5.0 | Halal    |          267 | None |
+|                    None | None |  None |  None | Halal    |         None | None |
+|                    None | None |  None |  None | Halal    |         None | None |
+|                    None | None |  None |  None | Halal    |         None | None |
++-------------------------+------+-------+-------+----------+--------------+------+
+         
+         
+         I only found that there is only 1 restaurant which is in Mesa, Arizona which is halal and has 267 reviews. But I was unable to pull out the text of this restaurant. I also found the other restaurants which were showing "Halal" category are actually empty.
+         
+iv. Provide the SQL code you used to create your final dataset:
+
+-Code:
+	
+	--StartofCode
+	Select b.name
+	,b.city
+	,b.state
+	,b.stars
+	,c.category
+	,b.review_count
+	,r.text
+	from category c
+	LEFT JOIN business b ON c.business_id=b.id
+	LEFT JOIN review r ON b.id=r.id
+	Where category='Halal';
+
+	--EndofCode
